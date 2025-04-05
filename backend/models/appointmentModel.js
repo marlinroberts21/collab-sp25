@@ -4,7 +4,8 @@ import mongoose from 'mongoose';
 const appointmentSchema = new mongoose.Schema({
     date: { type: Date, required: true },
     time: { type: String, required: true }, 
-    details: { type: String, required: true }, 
+    details: { type: String, required: true },
+    contact: { type: mongoose.Schema.Types.ObjectId, ref: 'Contact' }, // reference to the Contact model, added by Marco 4/04/2025
     // userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }    // for now we are not relating users-to-appointments as users do not sign-in
 });
 
