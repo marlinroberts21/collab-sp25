@@ -5,6 +5,7 @@ import MissionStatement from './components/MissionStatement.jsx'
 import Appointments from './components/Appointments.jsx'
 import Services from './components/Services.jsx'
 import ReviewsPage from './pages/ReviewsPage.jsx'
+import ContactPage from './pages/ContactPage.jsx'
 
 import AdminHomePage from './admin/pages/AdminHomePage.jsx';
 import AdminAppointmentsPage from './admin/pages/AdminAppointmentsPage.jsx';
@@ -29,7 +30,12 @@ function App() {
             <ReviewsPage />
           </>
         }/>
-       
+        <Route path="/contact" element={
+          <>
+            <Navbar />
+            <ContactPage />
+          </>
+        }/>
        
 
 
