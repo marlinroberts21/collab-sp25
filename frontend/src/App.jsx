@@ -7,10 +7,15 @@ import MissionStatement from './components/MissionStatement.jsx'
 import Appointments from './components/Appointments.jsx'
 import Services from './components/Services.jsx'
 
-// Pages
+import ContactPage from './pages/ContactPage.jsx'
+
+import CollisionRepair from './components/CollisionRepair.jsx';
+
 import AdminHomePage from './admin/pages/AdminHomePage.jsx';
 import AdminReviewsPage from './admin/pages/AdminReviewsPage.jsx';
 import AdminAppointmentsPage from './admin/pages/AdminAppointmentsPage.jsx';
+import FormDetails from './components/Forms/Forms.jsx';
+import './App.css';
 import AppointmentsPage from './pages/AppointmentPage.jsx';
 import LocationPage from './pages/LocationPage.jsx';
 import CustPaintPage from './pages/CustPaintPage.jsx';
@@ -57,6 +62,22 @@ function App() {
           </>
         }/>
 
+          <Route path="/forms" element={
+          <>
+            
+            <FormDetails />
+          </>
+        }/>
+        <Route path="/collision-repair" element={
+          <>
+          <CollisionRepair />
+
+          </>
+        }/>
+       
+       
+
+
         <Route path="/CustPaintPage" element={
           <>
             <Navbar /> 
@@ -72,16 +93,17 @@ function App() {
           </>
             
         }/>
+
           
         <Route path='/appointments' element={
           <>
-          <Navbar />
+        
           <AppointmentsPage />
           </>
         } />
         <Route path='/location' element={
           <>
-          <Navbar />
+         
           <LocationPage />
           </>
         } />

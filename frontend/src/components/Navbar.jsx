@@ -62,7 +62,7 @@ export default function Navbar() {
                   Services
                 </a>
                 <ul className="dropdown-menu">
-                  <li><a className="dropdown-item" href="#collision-repair">Collision Repair</a></li>
+                  <li><Link className="dropdown-item" to="collision-repair">Collision Repair</Link></li>
                   <li><a className="dropdown-item" href="#painting">Painting</a></li>
                   {/* <li><a className="dropdown-item" href="#CustPaintPage">Specialty Painting</a></li> */}
                   <li><a className="dropdown-item" href="#specialty-painting">
@@ -99,7 +99,9 @@ export default function Navbar() {
                 <Link className="nav-link" to="/location">Directions</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#">Download Forms</a>
+              <Link to="/forms" className="m-0 text-end">
+                  Download Forms
+                </Link>
               </li>
             </ul>
           </div>
