@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import formatDate from '/helpers/dateConversion'
-import formatTime from '/helpers/timeConversion'
+import formatTimeAmPm from '/helpers/timeConversion'
 import formatTimezone from '/helpers/convertTimezoneDate'
 // import formatString from '/helpers/stringConversion'
 import AdminNavbar from '../components/AdminNavbar'
 import CreateAppointmentForm from '../components/CreateAppointmentForm'
 import EditAppointmentForm from '../components/EditAppointmentForm'
+import SearchAppointment from '../components/SearchAppointment'
 
 
 
@@ -18,12 +19,13 @@ import EditAppointmentForm from '../components/EditAppointmentForm'
 
 function AdminAppointmentsPage() {
 
-  // state for each component (CreeateAppt/EditAppt) to keep it's own date/time separate
+  // state for each component (CreateAppt/EditAppt) to keep it's own date/time separate
   const [createDateTime, setCreateDateTime] = useState(null)
   const [editDateTime, setEditDateTime] = useState(null)
   // for sorting
-  const [sortBy, setSortBy] = useState('date');
   const [selectedDate, setSelectedDate] = useState(null);
+  const [searchEmail, setSearchEmail] = useState('');
+  const [isSortActive, setIsSortActive] = useState(false)
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -36,9 +38,7 @@ function AdminAppointmentsPage() {
   const [updatePhone, setUpdatePhone] = useState('')
   const [updateDetails, setUpdateDetails] = useState('')
 
-  // use count and dailyTimeSlots for conditional rendering of appts?? Maybe, just an idea for now  :
-  // const dailyTimeSlots = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"] 
-  // const count = [count, setCount] = useState(10)
+  const dailyTimeSlots = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"] 
 
   // gets the initial list of appointments, but also runs a second time after the POST request if it's successful
   const fetchData = async () => {
@@ -159,53 +159,45 @@ function AdminAppointmentsPage() {
     }
   }
 
-  // SORT APPOINTMENTS BT TIME/NAME - DROPDOWN LOGIC
-  const sortedAppointments = appointments.sort((a, b) => {
-    switch (sortBy) {
-      case 'name':
-        return a.name.localeCompare(b.name)
+  // Returns MILITARY TIME to match 'dailyTimeSlots' array
+  function formatTime(timeStr) {
+    if (!timeStr) return 'Invalid Time';
   
-      case 'datetime': // Sorting by both date and time
-      default: {
-        const dateStrA = new Date(a.date).toISOString().split('T')[0]
-        const dateStrB = new Date(b.date).toISOString().split('T')[0]
-  
-        const fullDateTimeA = new Date(`${dateStrA}T${a.time}`)
-        const fullDateTimeB = new Date(`${dateStrB}T${b.time}`)
-  
-        return fullDateTimeA.getTime() - fullDateTimeB.getTime()
-      }
-    }
-  })
+    const [hours, minutes] = timeStr.split(':');
+    const paddedHours = hours.padStart(2, '0'); 
+    console.log(`Time is ----------> ${paddedHours}:${minutes}`);
+    return `${paddedHours}:${minutes}`;
+  }
 
   // SORT APPOINTMENTS BY DATE - CALENDAR LOGIC
-  let filteredAppointments
-  let takenTimeSlots = []
-  let getApptDate
+  let filteredAppointments;
 
-  if (selectedDate) {  
-    filteredAppointments = sortedAppointments.filter((appt) => {
-      getApptDate = new Date(appt.date).toISOString().split('T')[0]
-      let apptTime = appt.time
-      if(getApptDate === selectedDate){
-        takenTimeSlots.push(apptTime)
-      }
-      return getApptDate === selectedDate
-    })
-  } else {            // if no date is selected
-    filteredAppointments = sortedAppointments
+  if (selectedDate) {
+    filteredAppointments = appointments.filter((appt) => {
+      const apptDate = new Date(appt.date).toISOString().split('T')[0];
+      return apptDate === selectedDate;
+    });
+  } else {
+    filteredAppointments = appointments;
   }
-  // setApptDate(selectedDate)
 
-  console.log(takenTimeSlots)
-  //const appointmentDeficit = dailyTimeSlots - takenTimeSlots
+  // SEARCH APPOINTMENTS BY EMAIL
+  const handleSearchedAppointments = filteredAppointments.filter((appt) =>
+    searchEmail === '' || appt.email.toLowerCase().includes(searchEmail.toLowerCase())
+  );
+
+  // SORT TOGGLING FOR DISPLAY
+  const toggleSorting = () => {
+    setIsSortActive(!isSortActive);
+  };
+
 
   return (
 
     <>
     <AdminNavbar />
     
-    <div className="container d-flex flex-column bg-light border border-1 rounded-4 gap-0 gap-lg-2 py-2 p-lg-3 my-2 my-lg-4">
+    <div className="container d-flex flex-column bg-light border border-1 gap-0 gap-lg-2 py-2 p-lg-3 my-2 my-lg-4">
       <h1 className="text-center fs-3 m-0 mt-1 section-header-blue">Appointment page</h1>
 
       <div className='side-by-side-desktop d-flex flex-column flex-xl-row align-items-xl-start justify-content-lg-center mx-auto gap-3'>
@@ -260,8 +252,7 @@ function AdminAppointmentsPage() {
 
       </div>
 
-      {/* Sorting dropdown */}
-
+      {/* Sorting by DATE or EMAIL */}
       <div className='sort-appointments-wrapper d-flex gap-0 m-0 mb-2 mb-lg-0 mx-auto p-0'>
 
       <div className='m-0 p-0 d-flex'>
@@ -274,24 +265,64 @@ function AdminAppointmentsPage() {
       </div>
 
       <div className='sort-appointments-dropdown m-0 p-0 d-flex'>
-        <select className='py-1 px-0' onChange={(e) => setSortBy(e.target.value)} value={sortBy}>
+        {/* <input type="text" placeholder="search email" className="py-1 ps-2" value={searchEmail} onChange={(e) => setSearchEmail(e.target.value)}/> */}
+        <input 
+          type="text" 
+          placeholder="search email" 
+          className="py-1 ps-2" 
+          value={searchEmail}
+          onChange={(e) => {
+            const value = e.target.value;
+            setSearchEmail(value);
+            if (!isSortActive && value.trim() !== "") {
+              toggleSorting();
+            } else if (isSortActive && value.trim() === "") {
+              toggleSorting(); // turn it off when field is cleared
+            }
+          }}
+        />
+
+        {/* <select className='py-1 px-0' onChange={(e) => setSortBy(e.target.value)} value={sortBy}>
           <option value="time">Sort by Time</option>
           <option value="name">Sort by Name</option>
-        </select>
+        </select> */}
       </div>
 
       </div>
 
-      {/* CARDS WRAPPER */}
-      {Array.from({ length: 10 }).map((_, index) => {
-        if (filteredAppointments[index]) {
-          const appointment = filteredAppointments[index];
-          return (
+
+
+
+      {/* SEARCH RESULTS APPOINTMENTS */}
+      {isSortActive ? (
+          <SearchAppointment
+            appointments={handleSearchedAppointments} // use 'handleSearchedAppointments' filter above and pass results to child
+            setUpdateName={setUpdateName}
+            setUpdateEmail={setUpdateEmail}
+            setUpdatePhone={setUpdatePhone}
+            setUpdateDetails={setUpdateDetails}
+            setSelectedAppointment={setSelectedAppointment}
+            handleDeleteAppointment={handleDeleteAppointment}
+           />
+      ) : (
+
+      <>
+       {dailyTimeSlots.map((timeSlot, index) => {
+
+          const appointment = handleSearchedAppointments.find((appt) => {
+            const formattedApptTime = formatTime(appt.time);
+            return formattedApptTime === timeSlot;
+          })
+          
+          if (appointment) {
+            const formattedApptTime = formatTime(appointment.time);
+            return (
             <div className="cards-wrapper" key={index}>
               <div className="card rounded-0 d-flex flex-column gap-3 gap-lg-0 flex-lg-row justify-content-lg-around align-items-lg-center p-3 p-lg-1 m-0">
                 <div className="col-12 col-lg-3">{formatDate(appointment.date)}</div>
-                <div className="col-12 col-lg-3">{formatTime(appointment.time)}</div>
+                <div className="col-12 col-lg-3">{formatTimeAmPm(formattedApptTime)}</div>
                 <div className="col-12 col-lg-3">{appointment.name}</div>
+
                 <div className="card-button-container col-12 col-lg-3 d-flex justify-content-around gap-2 gap-lg-0">
                   <a
                     type="button"
@@ -307,37 +338,34 @@ function AdminAppointmentsPage() {
                   >
                     Details
                   </a>
-                  <a
-                    type="button"
-                    className="btn btn-outline-danger col-5 col-lg-auto p-1"
-                    onClick={() => handleDeleteAppointment(appointment._id)}
-                  >
+                  <a type="button" className="btn btn-outline-danger col-5 col-lg-auto p-1" onClick={() => handleDeleteAppointment(appointment._id)} >
                     Delete
                   </a>
                 </div>
+
               </div>
             </div>
           );
         } else {
-          return (
-            <div className="cards-wrapper" key={index}>
-              <div className="card rounded-0 d-flex flex-column gap-3 gap-lg-0 flex-lg-row justify-content-lg-around align-items-lg-center p-3 py-lg-2 m-0">
-              <div className="col-12 col-lg-3">the date</div>
-                <div className="col-12 col-lg-3">00:00</div>
-                <div className="col-12 col-lg-6 text-success fw-semibold">Appointment available</div>
-                {/* <div className="card-button-container col-12 col-lg-3 d-flex justify-content-around gap-2 gap-lg-0">
-                  <div className='col-5 col-lg-auto p-1'></div>
-                  <div className='col-5 col-lg-auto p-1'></div>
-                </div> */}
+            return (
+              <div className="cards-wrapper" key={index}>
+                <div className="card rounded-0 d-flex flex-column gap-3 gap-lg-0 flex-lg-row justify-content-lg-around align-items-lg-center p-3 p-lg-1 py-lg-2 m-0">
+                  <div className="col-12 col-lg-3">{formatDate(selectedDate)}</div>
+                  <div className="col-12 col-lg-3">{formatTimeAmPm(timeSlot)}</div>
+                  <div className="col-12 col-lg-6 text-success fw-semibold">
+                    Appointment available
+                  </div>
+                </div>
               </div>
-            </div>
-          );
+            );
         }
-     })}
+      })}
+      </>
+    )} 
 
-    </div> {/* end container */}
-    </>
-  )
+  </div> {/* end container */}
+  </>
+  );
 }
 
 export default AdminAppointmentsPage

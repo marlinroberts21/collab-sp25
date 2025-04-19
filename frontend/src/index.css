@@ -198,20 +198,19 @@ image{
   width: 165px;
   margin: 0 auto !important;
 }
-.sort-appointments-dropdown select{
+.sort-appointments-dropdown input{
   width: 165px;
   margin: 0 auto !important;
   background-color: rgb(225, 244, 255);
   border: 1px solid rgb(194, 194, 194);
   align-content: stretch;
-  text-align: center;
 }
-.sort-appointments-dropdown select option{
+/* .sort-appointments-dropdown select option{
   margin: 0 auto !important;
   background-color: white;
   text-align: center;
   border: none;
-}
+} */
 
 .sort-dates-input{
   background-color: rgb(225, 244, 255);
