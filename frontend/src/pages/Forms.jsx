@@ -17,7 +17,7 @@ const FormDetails = () => {
                 <p>Common questions and answers regarding our dealership, services, financing, and more.</p>
               </div>
               <a
-                href="/assets/FAQ.docx"
+                href="/files/FAQ.docx"
                 download
                 className="download-button"
               >
@@ -31,7 +31,7 @@ const FormDetails = () => {
                 <p>Detailed warranty coverage and insurance options for your vehicle.</p>
               </div>
               <a
-                href="/assets/Warranty.docx"
+                href="/files/Warranty.docx"
                 download
                 className="download-button"
               >
